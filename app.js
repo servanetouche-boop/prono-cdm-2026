@@ -103,8 +103,8 @@ async function syncFromCloud() {
         if (cloudData.users && Object.keys(cloudData.users).length > 0) {
             localStorage.setItem('cdm2026_users', JSON.stringify(cloudData.users));
         }
-        // Ne pas écraser les matchs locaux avec un tableau vide du cloud
-        if (cloudData.matches && cloudData.matches.length > 0) {
+        // Ne pas écraser les matchs locaux avec un tableau vide ou incomplet du cloud
+        if (cloudData.matches && cloudData.matches.length >= MATCHES_DATA.length) {
             localStorage.setItem('cdm2026_matches', JSON.stringify(cloudData.matches));
         }
         if (cloudData.predictions && Object.keys(cloudData.predictions).length > 0) {
