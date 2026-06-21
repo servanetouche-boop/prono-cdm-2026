@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prono CDM 2026 ⚽</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Écran de connexion -->
+    <div id="auth-screen" class="screen active">
+        <div class="auth-container">
+            <div class="auth-logo">⚽</div>
+            <h1>Prono CDM 2026</h1>
+            <p class="auth-subtitle">Coupe du Monde FIFA 2026</p>
+            
+            <div id="login-form" class="auth-form">
+                <h2>Connexion</h2>
+                <div class="form-group">
+                    <input type="text" id="login-username" placeholder="Nom d'utilisateur" autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <input type="password" id="login-password" placeholder="Mot de passe" autocomplete="current-password">
+                </div>
+                <button class="btn btn-primary" onclick="login()">Se connecter</button>
+                <p class="auth-switch">Pas de compte ? <a href="#" onclick="showRegister()">S'inscrire</a></p>
+            </div>
+
+            <div id="register-form" class="auth-form" style="display:none">
+                <h2>Inscription</h2>
+                <div class="form-group">
+                    <input type="text" id="reg-username" placeholder="Nom d'utilisateur" autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <input type="password" id="reg-password" placeholder="Mot de passe" autocomplete="new-password">
+                </div>
+                <div class="form-group">
+                    <input type="password" id="reg-password2" placeholder="Confirmer le mot de passe" autocomplete="new-password">
+                </div>
+                <button class="btn btn-primary" onclick="register()">S'inscrire</button>
+                <p class="auth-switch">Déjà un compte ? <a href="#" onclick="showLogin()">Se connecter</a></p>
+            </div>
+
+            <div class="qr-section">
+                <p>Scannez pour accéder :</p>
+                <div id="qr-code"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application principale -->
+    <div id="app-screen" class="screen">
+        <nav class="navbar">
+            <div class="nav-brand">⚽ Prono CDM 2026</div>
+            <div class="nav-user">
+                <span id="nav-username"></span>
+                <button class="btn btn-sm" onclick="logout()">Déconnexion</button>
+            </div>
+        </nav>
+
+        <div class="tab-bar">
+            <button class="tab active" data-tab="matches" onclick="switchTab('matches')">🏟️ Matchs</button>
+            <button class="tab" data-tab="results" onclick="switchTab('results')">📊 Mes Résultats</button>
+            <button class="tab" data-tab="ranking" onclick="switchTab('ranking')">🏆 Classement</button>
+        </div>
+
+        <!-- Onglet Matchs & Pronostics -->
+        <div id="tab-matches" class="tab-content active">
+            <div class="filters">
+                <select id="filter-group" onchange="filterMatches()">
+                    <option value="all">Toutes les phases</option>
+                    <option value="Huitièmes de finale">Huitièmes de finale</option>
+                    <option value="Quarts de finale">Quarts de finale</option>
+                    <option value="Demi-finales">Demi-finales</option>
+                    <option value="Match pour la 3e place">3e place</option>
+                    <option value="Finale">Finale</option>
+                </select>
+                <select id="filter-status" onchange="filterMatches()">
+                    <option value="all">Tous les statuts</option>
+                    <option value="upcoming">À venir</option>
+                    <option value="finished">Terminés</option>
+                </select>
+            </div>
+            <div id="matches-list" class="matches-grid"></div>
+        </div>
+
+        <!-- Onglet Résultats Individuels -->
+        <div id="tab-results" class="tab-content">
+            <div class="results-summary">
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-points">0</div>
+                    <div class="stat-label">Points</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-exact">0</div>
+                    <div class="stat-label">Scores exacts</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-diff">0</div>
+                    <div class="stat-label">Bons écarts</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-winner">0</div>
+                    <div class="stat-label">Bons vainqueurs</div>
+                </div>
+            </div>
+            <div id="results-list" class="results-grid"></div>
+        </div>
+
+        <!-- Onglet Classement -->
+        <div id="tab-ranking" class="tab-content">
+            <div id="ranking-list" class="ranking-container"></div>
+        </div>
+    </div>
+
+    <!-- Modal pronostic -->
+    <div id="prediction-modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <h2>Mon Pronostic</h2>
+            <div id="modal-match-info"></div>
+            <div class="prediction-input">
+                <div class="score-input">
+                    <label id="modal-team1"></label>
+                    <input type="number" id="pred-score1" min="0" max="20" value="0">
+                </div>
+                <span class="vs-separator">-</span>
+                <div class="score-input">
+                    <input type="number" id="pred-score2" min="0" max="20" value="0">
+                    <label id="modal-team2"></label>
+                </div>
+            </div>
+            <button class="btn btn-primary btn-full" onclick="savePrediction()">Valider mon pronostic</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
