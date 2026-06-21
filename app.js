@@ -60,7 +60,7 @@ const MATCHES_DATA = [
     // Finale
     { id: 28, team1: "Finaliste 1", team2: "Finaliste 2", date: "2026-07-19T21:00:00", phase: "Finale", score1: null, score2: null },
     // ===== MATCH TEST (à supprimer après) =====
-    { id: 99, team1: "Espagne", team2: "Arabie Saoudite", date: "2026-06-21T18:00:00", phase: "TEST", score1: null, score2: null },
+    { id: 99, team1: "Spain", team2: "Saudi Arabia", date: "2026-06-21T18:00:00", phase: "TEST", score1: null, score2: null },
 ];
 
 // ---- Stockage : Cloud (JSONBin) + Local fallback ----
@@ -503,24 +503,39 @@ async function fetchLiveResults() {
         const response = await fetch(API_URL, {
             headers: { 'X-Auth-Token': API_KEY }
         });
-        if (!response.ok) return;
+        if (!response.ok) {
+            console.warn('API réponse:', response.status);
+            return;
+        }
         const data = await response.json();
         const matches = getMatches();
         let updated = false;
 
         data.matches.forEach(apiMatch => {
             if (apiMatch.status === 'FINISHED') {
+                const apiHome = apiMatch.homeTeam.name || apiMatch.homeTeam.shortName || '';
+                const apiAway = apiMatch.awayTeam.name || apiMatch.awayTeam.shortName || '';
+
+                // Chercher une correspondance par nom d'équipe (partiel)
                 const localMatch = matches.find(m => {
-                    const apiDate = new Date(apiMatch.utcDate).toDateString();
-                    const localDate = new Date(m.date).toDateString();
-                    return localDate === apiDate &&
-                        (m.team1.includes(apiMatch.homeTeam.name) ||
-                         m.team2.includes(apiMatch.awayTeam.name));
+                    if (m.score1 !== null) return false; // Déjà rempli
+                    const t1 = m.team1.toLowerCase();
+                    const t2 = m.team2.toLowerCase();
+                    const h = apiHome.toLowerCase();
+                    const a = apiAway.toLowerCase();
+                    // Match si les noms d'équipes correspondent (dans un sens ou l'autre)
+                    const homeMatch = t1.includes(h) || h.includes(t1) || t1 === h;
+                    const awayMatch = t2.includes(a) || a.includes(t2) || t2 === a;
+                    const reverseHome = t1.includes(a) || a.includes(t1);
+                    const reverseAway = t2.includes(h) || h.includes(t2);
+                    return (homeMatch && awayMatch) || (reverseHome && reverseAway);
                 });
-                if (localMatch && localMatch.score1 === null) {
+
+                if (localMatch) {
                     localMatch.score1 = apiMatch.score.fullTime.home;
                     localMatch.score2 = apiMatch.score.fullTime.away;
                     updated = true;
+                    console.log(`✓ Score mis à jour : ${localMatch.team1} ${localMatch.score1} - ${localMatch.score2} ${localMatch.team2}`);
                 }
             }
         });
