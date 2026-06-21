@@ -59,6 +59,8 @@ const MATCHES_DATA = [
     { id: 27, team1: "Perdant DF1", team2: "Perdant DF2", date: "2026-07-18T21:00:00", phase: "Match pour la 3e place", score1: null, score2: null },
     // Finale
     { id: 28, team1: "Finaliste 1", team2: "Finaliste 2", date: "2026-07-19T21:00:00", phase: "Finale", score1: null, score2: null },
+    // ===== MATCH TEST (à supprimer après) =====
+    { id: 99, team1: "Espagne", team2: "Arabie Saoudite", date: "2026-06-21T18:00:00", phase: "TEST", score1: null, score2: null },
 ];
 
 // ---- Stockage : Cloud (JSONBin) + Local fallback ----
