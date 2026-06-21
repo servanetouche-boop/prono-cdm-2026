@@ -135,22 +135,25 @@ function saveUsers(users) {
 }
 
 function getMatches() {
-    // Versionner les matchs : si la liste du code change, on force la mise à jour
-    const currentVersion = MATCHES_DATA.length + '_' + MATCHES_DATA[MATCHES_DATA.length - 1].id;
-    const storedVersion = localStorage.getItem('cdm2026_matches_version');
+    // Toujours s'assurer que tous les matchs du code sont présents
+    const stored = localStorage.getItem('cdm2026_matches');
+    let matches = stored ? JSON.parse(stored) : [];
 
-    if (storedVersion !== currentVersion) {
-        // Nouvelle version détectée, on réinitialise
-        localStorage.setItem('cdm2026_matches', JSON.stringify(MATCHES_DATA));
-        localStorage.setItem('cdm2026_matches_version', currentVersion);
-        return [...MATCHES_DATA];
+    // Fusionner : ajouter les matchs manquants depuis MATCHES_DATA
+    let updated = false;
+    MATCHES_DATA.forEach(defaultMatch => {
+        const exists = matches.find(m => m.id === defaultMatch.id);
+        if (!exists) {
+            matches.push(defaultMatch);
+            updated = true;
+        }
+    });
+
+    if (updated || !stored) {
+        localStorage.setItem('cdm2026_matches', JSON.stringify(matches));
     }
 
-    const stored = localStorage.getItem('cdm2026_matches');
-    if (stored) return JSON.parse(stored);
-    localStorage.setItem('cdm2026_matches', JSON.stringify(MATCHES_DATA));
-    localStorage.setItem('cdm2026_matches_version', currentVersion);
-    return [...MATCHES_DATA];
+    return matches;
 }
 
 function saveMatches(matches) {
