@@ -60,7 +60,7 @@ const MATCHES_DATA = [
     // Finale
     { id: 28, team1: "Finaliste 1", team2: "Finaliste 2", date: "2026-07-19T21:00:00", phase: "Finale", score1: null, score2: null },
     // ===== MATCH TEST (à supprimer après) =====
-    { id: 99, team1: "Spain", team2: "Saudi Arabia", date: "2026-06-21T18:00:00", phase: "TEST", score1: null, score2: null },
+    { id: 99, team1: "Espagne", team2: "Arabie Saoudite", date: "2026-06-21T18:00:00", phase: "TEST", score1: null, score2: null },
 ];
 
 // ---- Stockage : Cloud (JSONBin) + Local fallback ----
@@ -493,6 +493,54 @@ function renderRanking() {
     }).join('') || '<p class="empty-msg">Aucun participant inscrit pour le moment</p>';
 }
 
+// ---- Traduction des noms d'équipes (API anglais → affichage français) ----
+const TEAM_NAMES = {
+    "Spain": "Espagne", "Saudi Arabia": "Arabie Saoudite",
+    "France": "France", "Germany": "Allemagne", "Brazil": "Brésil",
+    "Argentina": "Argentine", "England": "Angleterre", "Belgium": "Belgique",
+    "Netherlands": "Pays-Bas", "Portugal": "Portugal", "Italy": "Italie",
+    "United States": "États-Unis", "USA": "États-Unis", "Mexico": "Mexique",
+    "Canada": "Canada", "Japan": "Japon", "South Korea": "Corée du Sud",
+    "Korea Republic": "Corée du Sud", "Australia": "Australie",
+    "Morocco": "Maroc", "Senegal": "Sénégal", "Nigeria": "Nigeria",
+    "Cameroon": "Cameroun", "Ghana": "Ghana", "Egypt": "Égypte",
+    "Tunisia": "Tunisie", "Algeria": "Algérie", "Ivory Coast": "Côte d'Ivoire",
+    "Côte d'Ivoire": "Côte d'Ivoire",
+    "Croatia": "Croatie", "Serbia": "Serbie", "Switzerland": "Suisse",
+    "Denmark": "Danemark", "Sweden": "Suède", "Norway": "Norvège",
+    "Poland": "Pologne", "Ukraine": "Ukraine", "Czech Republic": "Tchéquie",
+    "Austria": "Autriche", "Hungary": "Hongrie", "Romania": "Roumanie",
+    "Greece": "Grèce", "Turkey": "Turquie", "Scotland": "Écosse",
+    "Wales": "Pays de Galles", "Ireland": "Irlande",
+    "Colombia": "Colombie", "Chile": "Chili", "Peru": "Pérou",
+    "Uruguay": "Uruguay", "Ecuador": "Équateur", "Paraguay": "Paraguay",
+    "Venezuela": "Venezuela", "Bolivia": "Bolivie",
+    "Costa Rica": "Costa Rica", "Panama": "Panama", "Honduras": "Honduras",
+    "Jamaica": "Jamaïque", "Trinidad and Tobago": "Trinité-et-Tobago",
+    "Iran": "Iran", "Qatar": "Qatar", "China PR": "Chine",
+    "India": "Inde", "Indonesia": "Indonésie",
+    "New Zealand": "Nouvelle-Zélande", "Cape Verde": "Cap-Vert",
+    "Curaçao": "Curaçao", "Mali": "Mali", "Congo DR": "RD Congo",
+    "South Africa": "Afrique du Sud", "Bahrain": "Bahreïn",
+    "Uzbekistan": "Ouzbékistan", "Iraq": "Irak", "Jordan": "Jordanie",
+    "Palestine": "Palestine", "Oman": "Oman",
+    "Slovenia": "Slovénie", "Slovakia": "Slovaquie",
+    "Albania": "Albanie", "Georgia": "Géorgie",
+    "Iceland": "Islande", "Finland": "Finlande",
+    "Russia": "Russie", "Israel": "Israël"
+};
+
+// Convertir nom anglais API → français
+function translateTeam(englishName) {
+    return TEAM_NAMES[englishName] || englishName;
+}
+
+// Trouver le nom anglais à partir du français (pour matching API)
+function findEnglishName(frenchName) {
+    const entry = Object.entries(TEAM_NAMES).find(([en, fr]) => fr === frenchName);
+    return entry ? entry[0] : frenchName;
+}
+
 // ---- Mise à jour automatique des résultats ----
 async function fetchLiveResults() {
     if (!API_KEY) {
@@ -515,20 +563,23 @@ async function fetchLiveResults() {
             if (apiMatch.status === 'FINISHED') {
                 const apiHome = apiMatch.homeTeam.name || apiMatch.homeTeam.shortName || '';
                 const apiAway = apiMatch.awayTeam.name || apiMatch.awayTeam.shortName || '';
+                // Traduire en français pour comparer avec nos matchs
+                const apiHomeFr = translateTeam(apiHome).toLowerCase();
+                const apiAwayFr = translateTeam(apiAway).toLowerCase();
 
-                // Chercher une correspondance par nom d'équipe (partiel)
                 const localMatch = matches.find(m => {
-                    if (m.score1 !== null) return false; // Déjà rempli
+                    if (m.score1 !== null) return false;
                     const t1 = m.team1.toLowerCase();
                     const t2 = m.team2.toLowerCase();
-                    const h = apiHome.toLowerCase();
-                    const a = apiAway.toLowerCase();
-                    // Match si les noms d'équipes correspondent (dans un sens ou l'autre)
-                    const homeMatch = t1.includes(h) || h.includes(t1) || t1 === h;
-                    const awayMatch = t2.includes(a) || a.includes(t2) || t2 === a;
-                    const reverseHome = t1.includes(a) || a.includes(t1);
-                    const reverseAway = t2.includes(h) || h.includes(t2);
-                    return (homeMatch && awayMatch) || (reverseHome && reverseAway);
+                    // Match direct en français
+                    const homeMatch = t1 === apiHomeFr || t1.includes(apiHomeFr) || apiHomeFr.includes(t1);
+                    const awayMatch = t2 === apiAwayFr || t2.includes(apiAwayFr) || apiAwayFr.includes(t2);
+                    // Aussi tester en anglais au cas où
+                    const hEn = apiHome.toLowerCase();
+                    const aEn = apiAway.toLowerCase();
+                    const homeMatchEn = t1.includes(hEn) || hEn.includes(t1);
+                    const awayMatchEn = t2.includes(aEn) || aEn.includes(t2);
+                    return (homeMatch && awayMatch) || (homeMatchEn && awayMatchEn);
                 });
 
                 if (localMatch) {
