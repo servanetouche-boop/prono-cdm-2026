@@ -16,7 +16,9 @@ const JSONBIN_KEY = '$2a$10$eHmF63d7EIkK9iaVb.lofOHu8CbmlsrqChcr/1tHFk31jMS.l.v2
 const USE_CLOUD = true;
 
 // API pour les résultats en direct
-const API_URL = 'https://api.football-data.org/v4/competitions/WC/matches';
+const API_BASE = 'https://api.football-data.org/v4/competitions/WC/matches';
+// Proxy CORS pour permettre les appels depuis le navigateur
+const API_URL = 'https://corsproxy.io/?' + encodeURIComponent(API_BASE);
 const API_KEY = 'e9fecee5adfb40709d025c671c1e9d7a';
 
 // ---- État de l'application ----
