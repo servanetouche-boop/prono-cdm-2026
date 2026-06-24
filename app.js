@@ -26,43 +26,55 @@ let currentUser = null;
 let currentMatchId = null;
 
 // ---- Matchs Phases Éliminatoires CDM 2026 ----
-// (Les noms d'équipes seront mis à jour après la phase de groupes)
+// Format 2026 : 48 équipes → 32 qualifiés pour les éliminatoires
+// 16èmes (Round of 32) → 8èmes → Quarts → Demis → 3e place → Finale
 const MATCHES_DATA = [
-    // Huitièmes de finale (16 matchs pour 48 équipes → 32 qualifiés)
-    { id: 1, team1: "1A", team2: "2B", date: "2026-07-01T18:00:00", phase: "Huitièmes de finale", score1: null, score2: null },
-    { id: 2, team1: "1B", team2: "2A", date: "2026-07-01T21:00:00", phase: "Huitièmes de finale", score1: null, score2: null },
-    { id: 3, team1: "1C", team2: "2D", date: "2026-07-02T18:00:00", phase: "Huitièmes de finale", score1: null, score2: null },
-    { id: 4, team1: "1D", team2: "2C", date: "2026-07-02T21:00:00", phase: "Huitièmes de finale", score1: null, score2: null },
-    { id: 5, team1: "1E", team2: "2F", date: "2026-07-03T18:00:00", phase: "Huitièmes de finale", score1: null, score2: null },
-    { id: 6, team1: "1F", team2: "2E", date: "2026-07-03T21:00:00", phase: "Huitièmes de finale", score1: null, score2: null },
-    { id: 7, team1: "1G", team2: "2H", date: "2026-07-04T18:00:00", phase: "Huitièmes de finale", score1: null, score2: null },
-    { id: 8, team1: "1H", team2: "2G", date: "2026-07-04T21:00:00", phase: "Huitièmes de finale", score1: null, score2: null },
-    { id: 9, team1: "1I", team2: "2J", date: "2026-07-05T18:00:00", phase: "Huitièmes de finale", score1: null, score2: null },
-    { id: 10, team1: "1J", team2: "2I", date: "2026-07-05T21:00:00", phase: "Huitièmes de finale", score1: null, score2: null },
-    { id: 11, team1: "1K", team2: "2L", date: "2026-07-06T18:00:00", phase: "Huitièmes de finale", score1: null, score2: null },
-    { id: 12, team1: "1L", team2: "2K", date: "2026-07-06T21:00:00", phase: "Huitièmes de finale", score1: null, score2: null },
-    { id: 13, team1: "3e A/B/C", team2: "3e D/E/F", date: "2026-07-07T18:00:00", phase: "Huitièmes de finale", score1: null, score2: null },
-    { id: 14, team1: "3e G/H/I", team2: "3e J/K/L", date: "2026-07-07T21:00:00", phase: "Huitièmes de finale", score1: null, score2: null },
-    { id: 15, team1: "3e meilleurs", team2: "3e meilleurs", date: "2026-07-08T18:00:00", phase: "Huitièmes de finale", score1: null, score2: null },
-    { id: 16, team1: "3e meilleurs", team2: "3e meilleurs", date: "2026-07-08T21:00:00", phase: "Huitièmes de finale", score1: null, score2: null },
-    // Quarts de finale
-    { id: 17, team1: "Vainqueur 8e #1", team2: "Vainqueur 8e #2", date: "2026-07-11T18:00:00", phase: "Quarts de finale", score1: null, score2: null },
-    { id: 18, team1: "Vainqueur 8e #3", team2: "Vainqueur 8e #4", date: "2026-07-11T21:00:00", phase: "Quarts de finale", score1: null, score2: null },
-    { id: 19, team1: "Vainqueur 8e #5", team2: "Vainqueur 8e #6", date: "2026-07-12T18:00:00", phase: "Quarts de finale", score1: null, score2: null },
-    { id: 20, team1: "Vainqueur 8e #7", team2: "Vainqueur 8e #8", date: "2026-07-12T21:00:00", phase: "Quarts de finale", score1: null, score2: null },
-    { id: 21, team1: "Vainqueur 8e #9", team2: "Vainqueur 8e #10", date: "2026-07-13T18:00:00", phase: "Quarts de finale", score1: null, score2: null },
-    { id: 22, team1: "Vainqueur 8e #11", team2: "Vainqueur 8e #12", date: "2026-07-13T21:00:00", phase: "Quarts de finale", score1: null, score2: null },
-    { id: 23, team1: "Vainqueur 8e #13", team2: "Vainqueur 8e #14", date: "2026-07-14T18:00:00", phase: "Quarts de finale", score1: null, score2: null },
-    { id: 24, team1: "Vainqueur 8e #15", team2: "Vainqueur 8e #16", date: "2026-07-14T21:00:00", phase: "Quarts de finale", score1: null, score2: null },
-    // Demi-finales
-    { id: 25, team1: "Vainqueur QF1", team2: "Vainqueur QF2", date: "2026-07-15T21:00:00", phase: "Demi-finales", score1: null, score2: null },
-    { id: 26, team1: "Vainqueur QF3", team2: "Vainqueur QF4", date: "2026-07-16T21:00:00", phase: "Demi-finales", score1: null, score2: null },
-    // Match pour la 3e place
-    { id: 27, team1: "Perdant DF1", team2: "Perdant DF2", date: "2026-07-18T21:00:00", phase: "Match pour la 3e place", score1: null, score2: null },
-    // Finale
-    { id: 28, team1: "Finaliste 1", team2: "Finaliste 2", date: "2026-07-19T21:00:00", phase: "Finale", score1: null, score2: null },
     // ===== MATCH TEST (à supprimer après) =====
-    { id: 99, team1: "Espagne", team2: "Arabie Saoudite", date: "2026-06-21T18:00:00", phase: "TEST", score1: null, score2: null },
+    { id: 99, team1: "Suisse", team2: "Canada", date: "2026-06-24T21:00:00", phase: "TEST", score1: null, score2: null },
+
+    // 16èmes de finale / Round of 32 (16 matchs, du 28 juin au 3 juillet)
+    { id: 1, team1: "1A vs 2B", team2: "À définir", date: "2026-06-28T18:00:00", phase: "16èmes de finale", score1: null, score2: null },
+    { id: 2, team1: "1B vs 2A", team2: "À définir", date: "2026-06-28T21:00:00", phase: "16èmes de finale", score1: null, score2: null },
+    { id: 3, team1: "1C vs 2D", team2: "À définir", date: "2026-06-29T18:00:00", phase: "16èmes de finale", score1: null, score2: null },
+    { id: 4, team1: "1D vs 2C", team2: "À définir", date: "2026-06-29T21:00:00", phase: "16èmes de finale", score1: null, score2: null },
+    { id: 5, team1: "1E vs 3e", team2: "À définir", date: "2026-06-30T18:00:00", phase: "16èmes de finale", score1: null, score2: null },
+    { id: 6, team1: "1F vs 3e", team2: "À définir", date: "2026-06-30T21:00:00", phase: "16èmes de finale", score1: null, score2: null },
+    { id: 7, team1: "1G vs 2H", team2: "À définir", date: "2026-07-01T18:00:00", phase: "16èmes de finale", score1: null, score2: null },
+    { id: 8, team1: "1H vs 2G", team2: "À définir", date: "2026-07-01T21:00:00", phase: "16èmes de finale", score1: null, score2: null },
+    { id: 9, team1: "1I vs 2J", team2: "À définir", date: "2026-07-02T18:00:00", phase: "16èmes de finale", score1: null, score2: null },
+    { id: 10, team1: "1J vs 2I", team2: "À définir", date: "2026-07-02T21:00:00", phase: "16èmes de finale", score1: null, score2: null },
+    { id: 11, team1: "1K vs 2L", team2: "À définir", date: "2026-07-03T18:00:00", phase: "16èmes de finale", score1: null, score2: null },
+    { id: 12, team1: "1L vs 2K", team2: "À définir", date: "2026-07-03T21:00:00", phase: "16èmes de finale", score1: null, score2: null },
+    { id: 13, team1: "2E vs 3e", team2: "À définir", date: "2026-07-03T15:00:00", phase: "16èmes de finale", score1: null, score2: null },
+    { id: 14, team1: "2F vs 3e", team2: "À définir", date: "2026-07-03T18:00:00", phase: "16èmes de finale", score1: null, score2: null },
+    { id: 15, team1: "2I vs 3e", team2: "À définir", date: "2026-07-02T15:00:00", phase: "16èmes de finale", score1: null, score2: null },
+    { id: 16, team1: "2L vs 3e", team2: "À définir", date: "2026-07-02T18:00:00", phase: "16èmes de finale", score1: null, score2: null },
+
+    // Huitièmes de finale / Round of 16 (8 matchs, 4-7 juillet)
+    { id: 17, team1: "Vainqueur 16e #1", team2: "Vainqueur 16e #2", date: "2026-07-04T18:00:00", phase: "Huitièmes de finale", score1: null, score2: null },
+    { id: 18, team1: "Vainqueur 16e #3", team2: "Vainqueur 16e #4", date: "2026-07-04T21:00:00", phase: "Huitièmes de finale", score1: null, score2: null },
+    { id: 19, team1: "Vainqueur 16e #5", team2: "Vainqueur 16e #6", date: "2026-07-05T18:00:00", phase: "Huitièmes de finale", score1: null, score2: null },
+    { id: 20, team1: "Vainqueur 16e #7", team2: "Vainqueur 16e #8", date: "2026-07-05T21:00:00", phase: "Huitièmes de finale", score1: null, score2: null },
+    { id: 21, team1: "Vainqueur 16e #9", team2: "Vainqueur 16e #10", date: "2026-07-06T18:00:00", phase: "Huitièmes de finale", score1: null, score2: null },
+    { id: 22, team1: "Vainqueur 16e #11", team2: "Vainqueur 16e #12", date: "2026-07-06T21:00:00", phase: "Huitièmes de finale", score1: null, score2: null },
+    { id: 23, team1: "Vainqueur 16e #13", team2: "Vainqueur 16e #14", date: "2026-07-07T18:00:00", phase: "Huitièmes de finale", score1: null, score2: null },
+    { id: 24, team1: "Vainqueur 16e #15", team2: "Vainqueur 16e #16", date: "2026-07-07T21:00:00", phase: "Huitièmes de finale", score1: null, score2: null },
+
+    // Quarts de finale (4 matchs, 9-10 juillet)
+    { id: 25, team1: "Vainqueur 8e #1", team2: "Vainqueur 8e #2", date: "2026-07-09T18:00:00", phase: "Quarts de finale", score1: null, score2: null },
+    { id: 26, team1: "Vainqueur 8e #3", team2: "Vainqueur 8e #4", date: "2026-07-09T21:00:00", phase: "Quarts de finale", score1: null, score2: null },
+    { id: 27, team1: "Vainqueur 8e #5", team2: "Vainqueur 8e #6", date: "2026-07-10T18:00:00", phase: "Quarts de finale", score1: null, score2: null },
+    { id: 28, team1: "Vainqueur 8e #7", team2: "Vainqueur 8e #8", date: "2026-07-10T21:00:00", phase: "Quarts de finale", score1: null, score2: null },
+
+    // Demi-finales (2 matchs, 14-15 juillet)
+    { id: 29, team1: "Vainqueur QF1", team2: "Vainqueur QF2", date: "2026-07-14T21:00:00", phase: "Demi-finales", score1: null, score2: null },
+    { id: 30, team1: "Vainqueur QF3", team2: "Vainqueur QF4", date: "2026-07-15T21:00:00", phase: "Demi-finales", score1: null, score2: null },
+
+    // Match pour la 3e place (18 juillet)
+    { id: 31, team1: "Perdant DF1", team2: "Perdant DF2", date: "2026-07-18T21:00:00", phase: "Match pour la 3e place", score1: null, score2: null },
+
+    // Finale (19 juillet)
+    { id: 32, team1: "Finaliste 1", team2: "Finaliste 2", date: "2026-07-19T21:00:00", phase: "Finale", score1: null, score2: null },
 ];
 
 // ---- Stockage : Cloud (JSONBin) + Local fallback ----
