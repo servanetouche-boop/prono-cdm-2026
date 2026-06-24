@@ -149,19 +149,32 @@ function saveUsers(users) {
 }
 
 function getMatches() {
-    // Toujours s'assurer que tous les matchs du code sont présents
+    // Toujours s'assurer que tous les matchs du code sont présents et à jour
     const stored = localStorage.getItem('cdm2026_matches');
     let matches = stored ? JSON.parse(stored) : [];
 
-    // Fusionner : ajouter les matchs manquants depuis MATCHES_DATA
     let updated = false;
     MATCHES_DATA.forEach(defaultMatch => {
-        const exists = matches.find(m => m.id === defaultMatch.id);
-        if (!exists) {
+        const existing = matches.find(m => m.id === defaultMatch.id);
+        if (!existing) {
+            // Match manquant → ajouter
             matches.push(defaultMatch);
+            updated = true;
+        } else if (existing.score1 === null && (existing.team1 !== defaultMatch.team1 || existing.team2 !== defaultMatch.team2)) {
+            // Match pas encore joué mais noms changés dans le code → mettre à jour
+            existing.team1 = defaultMatch.team1;
+            existing.team2 = defaultMatch.team2;
+            existing.date = defaultMatch.date;
+            existing.phase = defaultMatch.phase;
             updated = true;
         }
     });
+
+    // Supprimer les matchs qui ne sont plus dans MATCHES_DATA
+    const validIds = MATCHES_DATA.map(m => m.id);
+    const before = matches.length;
+    matches = matches.filter(m => validIds.includes(m.id));
+    if (matches.length !== before) updated = true;
 
     if (updated || !stored) {
         localStorage.setItem('cdm2026_matches', JSON.stringify(matches));
