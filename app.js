@@ -16,9 +16,8 @@ const JSONBIN_KEY = '$2a$10$eHmF63d7EIkK9iaVb.lofOHu8CbmlsrqChcr/1tHFk31jMS.l.v2
 const USE_CLOUD = true;
 
 // API pour les résultats en direct
-const API_BASE = 'https://api.football-data.org/v4/competitions/WC/matches';
-// Proxy CORS pour permettre les appels depuis le navigateur
-const API_URL = 'https://corsproxy.io/?' + encodeURIComponent(API_BASE);
+// Appel via fonction serverless Netlify (pas de CORS)
+const API_URL = '/.netlify/functions/get-results';
 const API_KEY = 'e9fecee5adfb40709d025c671c1e9d7a';
 
 // ---- État de l'application ----
@@ -585,19 +584,14 @@ function findEnglishName(frenchName) {
 
 // ---- Mise à jour automatique des résultats ----
 async function fetchLiveResults() {
-    if (!API_KEY) {
-        console.log('Pas de clé API - mode manuel. Utilisez enterScore() dans la console.');
-        return;
-    }
     try {
-        const response = await fetch(API_URL, {
-            headers: { 'X-Auth-Token': API_KEY }
-        });
+        const response = await fetch(API_URL);
         if (!response.ok) {
             console.warn('API réponse:', response.status);
             return;
         }
         const data = await response.json();
+        if (!data.matches) return;
         const matches = getMatches();
         let updated = false;
 
