@@ -1,35 +1,38 @@
-// Fonction serverless Netlify pour récupérer les résultats
-// Pas de problème CORS car l'appel est fait côté serveur
-exports.handler = async function(event, context) {
-    const API_KEY = 'e9fecee5adfb40709d025c671c1e9d7a';
-    const API_URL = 'https://api.football-data.org/v4/competitions/WC/matches';
+const https = require('https');
 
-    try {
-        const response = await fetch(API_URL, {
-            headers: { 'X-Auth-Token': API_KEY }
+exports.handler = async function(event, context) {
+    return new Promise((resolve) => {
+        const options = {
+            hostname: 'api.football-data.org',
+            path: '/v4/competitions/WC/matches',
+            method: 'GET',
+            headers: {
+                'X-Auth-Token': 'e9fecee5adfb40709d025c671c1e9d7a'
+            }
+        };
+
+        const req = https.request(options, (res) => {
+            let data = '';
+            res.on('data', (chunk) => { data += chunk; });
+            res.on('end', () => {
+                resolve({
+                    statusCode: res.statusCode,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    },
+                    body: data
+                });
+            });
         });
 
-        if (!response.ok) {
-            return {
-                statusCode: response.status,
-                body: JSON.stringify({ error: 'API error', status: response.status })
-            };
-        }
+        req.on('error', (error) => {
+            resolve({
+                statusCode: 500,
+                body: JSON.stringify({ error: error.message })
+            });
+        });
 
-        const data = await response.json();
-
-        return {
-            statusCode: 200,
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
-            body: JSON.stringify(data)
-        };
-    } catch (error) {
-        return {
-            statusCode: 500,
-            body: JSON.stringify({ error: error.message })
-        };
-    }
+        req.end();
+    });
 };
